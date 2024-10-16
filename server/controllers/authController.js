@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import User from '../models/user.js';
-import { sendVerificationEmail } from '../utils/emailService.js';
+import { sendVerificationEmail } from '../utils/mailer.js';
 
 // Registration with email verification
 export const register = async (req, res) => {

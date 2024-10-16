@@ -1,14 +1,15 @@
 import nodemailer from 'nodemailer';
 
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 export const sendVerificationEmail = async (user, token) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: process.env.EMAIL_USER, // Your email address
-        pass: process.env.EMAIL_PASS, // Your email password
-      },
-    });
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -31,5 +32,26 @@ export const sendVerificationEmail = async (user, token) => {
 
 
 export const sendJobNotification = async (candidates, jobDetails) => {
-  // ... (send job updates to candidates using nodemailer)
+  try {
+    const { title, description, experienceLevel, endDate } = jobDetails;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: candidates.join(', '), // Sending emails to all candidates
+      subject: `New Job Opportunity: ${title}`,
+      html: `
+        <h2>New Job Posting: ${title}</h2>
+        <p><strong>Description:</strong> ${description}</p>
+        <p><strong>Experience Level:</strong> ${experienceLevel}</p>
+        <p><strong>Application Deadline:</strong> ${new Date(endDate).toLocaleDateString()}</p>
+        <p>If you are interested, please reach out to the hiring company directly.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Job notification emails sent to candidates');
+  } catch (error) {
+    console.error('Error sending job notification emails:', error);
+    throw new Error('Failed to send job notification emails');
+  }
 };
